@@ -51,7 +51,7 @@ zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 
 ## Usage
 
-```js
+```zig
 const std = @import("std");
 const pcsc = @import("pcsc");
 
