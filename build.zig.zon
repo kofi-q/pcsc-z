@@ -1,0 +1,20 @@
+.{
+    .name = .pcsc,
+    .version = "0.1.0",
+    .fingerprint = 0xd043102e7ef605b0,
+    .minimum_zig_version = "0.14.1",
+    .dependencies = .{
+        .base = .{
+            .hash = "base-0.1.0-rhH4plM0BQBPMYDPr-wk3TN6fXEuKqBWa_lfvkTmFg_3",
+            .url = "git+https://github.com/kofi-q/base-z.git#fd8716bbc9ee6a89c76cb15b9e4419715143b199",
+        },
+    },
+    .paths = .{
+        "_build",
+        "build.zig",
+        "build.zig.zon",
+        "LICENSE",
+        "README.md",
+        "src",
+    },
+}

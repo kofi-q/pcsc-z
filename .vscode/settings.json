@@ -1,0 +1,45 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.removeUnusedImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "typescript.workspaceSymbols.scope": "currentProject",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/*.code-search": true,
+    "**/.zig-cache": true,
+    "**/zig-out": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.hg/store/**": true,
+    "**/.zig-cache": true,
+    "**/zig-out": true
+  },
+  "zig.zls.enableBuildOnSave": true,
+  "zig.zls.buildOnSaveArgs": ["check"],
+  "cSpell.words": [
+    "allo",
+    "anyerror",
+    "anyopaque",
+    "anytype",
+    "apdu",
+    "autodoc",
+    "bitflags",
+    "callconv",
+    "CCID",
+    "deinit",
+    "Iword",
+    "npmignore",
+    "orelse",
+    "pcsc",
+    "pkgs",
+    "ulonglong",
+    "usingnamespace",
+    "usize",
+    "winsmcrd"
+  ],
+  "cSpell.enabled": true
+}
