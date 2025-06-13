@@ -29,12 +29,12 @@ pub fn main() !void {
 
         readers[0].status = readers[0].status_new;
 
-        if (readers[0].status.flags.hasAll(.{ .IN_USE = true })) {
+        if (readers[0].status.flags.IN_USE) {
             std.debug.print("Card in use. Waiting...\n", .{});
             continue;
         }
 
-        if (readers[0].status.flags.hasAll(.{ .MUTE = true })) {
+        if (readers[0].status.flags.MUTE) {
             std.debug.print("Card not readable. Check orientation...\n", .{});
             continue;
         }
