@@ -46,7 +46,7 @@ sudo systemctl start pcscd
 ## Installation
 
 ```sh
-zig fetch --save "git+https://github.com/kofi-q/pcsc-z.git"
+zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 ```
 
 ## Usage
