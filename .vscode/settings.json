@@ -35,10 +35,12 @@
     "npmignore",
     "orelse",
     "pcsc",
+    "pcsclite",
     "pkgs",
     "ulonglong",
     "usingnamespace",
     "usize",
+    "winscard",
     "winsmcrd"
   ],
   "cSpell.enabled": true

@@ -121,7 +121,7 @@ pub fn main() !void {
 }
 ```
 ```console
-$ zig build example:hello
+$ zig build example:transmit
 Connect a reader to continue...
 Reader detected: Gemalto USB SmartCard Reader
 Insert a card to continue...
