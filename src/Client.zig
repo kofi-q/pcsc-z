@@ -295,7 +295,7 @@ const SCardConnect = @extern(*const fn (
     preferred_protocol: Protocol.Sys,
     out_card: *Card.Handle,
     out_active_protocol: *Protocol.Sys,
-) callconv(.C) Result, .{
+) callconv(.c) Result, .{
     .name = if (builtin.os.tag == .windows)
         "SCardConnectA"
     else
@@ -314,7 +314,7 @@ const SCardGetStatusChange = @extern(*const fn (
     timeout: Uword,
     in_out_readers_ptr: [*]const Reader,
     readers_len: Uword,
-) callconv(.C) Result, .{
+) callconv(.c) Result, .{
     .name = if (builtin.os.tag == .windows)
         "SCardGetStatusChangeA"
     else
@@ -327,7 +327,7 @@ const SCardListReaderGroups = @extern(*const fn (
     client: Client.Handle,
     out_group_names_combined: ?[*]u8,
     in_out_group_names_len: *Uword,
-) callconv(.C) Result, .{
+) callconv(.c) Result, .{
     .name = if (builtin.os.tag == .windows)
         "SCardListReaderGroupsA"
     else
@@ -341,7 +341,7 @@ const SCardListReaders = @extern(*const fn (
     group_name: ?[*:0]const u8,
     out_reader_names_combined: ?[*]u8,
     in_out_reader_names_len: *Uword,
-) callconv(.C) Result, .{
+) callconv(.c) Result, .{
     .name = if (builtin.os.tag == .windows)
         "SCardListReadersA"
     else

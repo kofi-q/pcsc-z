@@ -481,7 +481,7 @@ const SCardControl = @extern(*const fn (
     out_response_buf_ptr: [*]u8,
     response_buf_len: Uword,
     out_response_len: *Uword,
-) callconv(.C) Result, .{
+) callconv(.c) Result, .{
     .name = if (builtin.os.tag == .macos)
         "SCardControl132"
     else
@@ -495,7 +495,7 @@ const SCardControl112 = if (builtin.os.tag == .macos) @extern(
         cbSendLength: Uword,
         pbRecvBuffer: [*]u8,
         pcbRecvLength: *Uword,
-    ) callconv(.C) Result,
+    ) callconv(.c) Result,
     .{
         .name = "SCardControl",
     },
@@ -539,7 +539,7 @@ const SCardStatus = switch (builtin.os.tag) {
         out_active_protocol: *Protocol.Sys,
         out_atr_ptr: [*]u8,
         out_atr_len: *Uword,
-    ) callconv(.C) Result, .{
+    ) callconv(.c) Result, .{
         .name = "SCardStatusA",
     }),
 
@@ -551,7 +551,7 @@ const SCardStatus = switch (builtin.os.tag) {
         out_active_protocol: *Protocol.Sys,
         out_atr_ptr: [*]u8,
         out_atr_len: *Uword,
-    ) callconv(.C) Result, .{
+    ) callconv(.c) Result, .{
         .name = "SCardStatus",
     }),
 };
