@@ -46,7 +46,7 @@ sudo systemctl start pcscd
 ## Installation
 
 ```sh
-zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
+zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#zig-v0.15.0"
 ```
 
 ## Usage
@@ -141,7 +141,7 @@ Received response: { 68, 81 }
 
 #### Zig
 
-v0.14.1 required - see [`.zigversion`](.zigversion) for latest compatible version.
+v0.15.0-dev.1149+4e6a04929 required - see [`.zigversion`](.zigversion) for latest compatible version.
 
 #### Linux
 
