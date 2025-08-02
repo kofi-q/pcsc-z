@@ -2,6 +2,7 @@
 
 const std = @import("std");
 const builtin = @import("builtin");
+const Writer = std.io.Writer;
 
 const base = @import("base");
 
@@ -205,17 +206,12 @@ pub const State = struct {
     /// Current card connection status.
     status: Status,
 
-    pub fn format(
-        self: State,
-        comptime _: []const u8,
-        _: std.fmt.FormatOptions,
-        writer: std.io.AnyWriter,
-    ) !void {
-        try std.fmt.format(
+    pub fn format(self: State, writer: *Writer) Writer.Error!void {
+        try Writer.print(
             writer,
             Fmt.underline("\n{s}\n") ++
-                "  Status: {s}\n" ++
-                "  Protocol: {}\n" ++
+                "  Status: {f}\n" ++
+                "  Protocol: {f}\n" ++
                 "  ATR: {x}\n",
             .{
                 self.reader_name.constSlice(),
@@ -451,13 +447,8 @@ pub fn transmitProtocol(
     return out[0..len_response];
 }
 
-pub fn format(
-    self: Card,
-    comptime _: []const u8,
-    _: std.fmt.FormatOptions,
-    writer: std.io.AnyWriter,
-) !void {
-    try std.fmt.format(writer, "[{}] {}", .{ self.handle, self.protocol });
+pub fn format(self: Card, writer: *Writer) Writer.Error!void {
+    try Writer.print(writer, "[{any}] {f}", .{ self.handle, self.protocol });
 }
 
 const Fmt = struct {

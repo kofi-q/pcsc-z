@@ -4,7 +4,7 @@ const pcsc = @import("pcsc");
 pub fn main() !void {
     const client = try pcsc.Client.init(.SYSTEM);
     defer client.deinit() catch |err| std.debug.print(
-        "Unable to release client: {}",
+        "Unable to release client: {t}",
         .{err},
     );
 
@@ -49,19 +49,19 @@ pub fn main() !void {
     // Connect to an inserted card:
     const card = try client.connect(readers[0].name_ptr, .SHARED, .ANY);
     defer card.disconnect(.RESET) catch |err| std.debug.print(
-        "Unable to disconnect card: {}\n",
+        "Unable to disconnect card: {t}\n",
         .{err},
     );
 
-    std.debug.print("Card connected with protocol {}\n", .{card.protocol});
+    std.debug.print("Card connected with protocol {f}\n", .{card.protocol});
 
     const command = [_]u8{ 0xca, 0xfe, 0xf0, 0x0d };
 
-    std.debug.print("Transmitting APDU: {x:0>2}\n", .{command});
+    std.debug.print("Transmitting APDU: 0x{x}\n", .{command});
 
     // Transmit/receive data to/from a card:
     var buf_response: [pcsc.max_buffer_len]u8 = undefined;
     const response = try card.transmit(&command, &buf_response);
 
-    std.debug.print("Received response: {x:0>2}\n", .{response});
+    std.debug.print("Received response: 0x{x}\n", .{response});
 }

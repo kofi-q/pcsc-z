@@ -114,7 +114,7 @@ pub fn main() !void {
             std.debug.print(
                 \\
                 \\Reader state changed:
-                \\  ┗━ {}
+                \\  ┗━ {f}
                 \\
             , .{reader});
 
@@ -138,27 +138,27 @@ pub fn main() !void {
 
             std.debug.print(
                 \\✅
-                \\  ┗━ Protocol: {s}
+                \\  ┗━ Protocol: {f}
                 \\
             , .{card.protocol});
 
             const card_state = try card.state();
             std.debug.print(
                 \\
-                \\Card State: {}
+                \\Card State: {f}
                 \\
             , .{card_state});
 
             const cmd = (try Apdu.cmd.selectFile("\x3f\x00")).bytes();
             std.debug.print(
-                \\Test transmission: {x:0>2}
+                \\Test transmission: 0x{x}
                 \\
             , .{cmd});
             var buf: [pcsc.max_buffer_len]u8 = undefined;
 
             const response = try card.transmit(cmd, &buf);
             std.debug.print(
-                \\  ┗━ Response: {x:0>2}
+                \\  ┗━ Response: 0x{x}
                 \\
             , .{response});
 
@@ -185,7 +185,7 @@ pub fn main() !void {
                     &buf,
                 );
                 std.debug.print(
-                    \\  ┃    ┗━ Response: {x:0>2}
+                    \\  ┃    ┗━ Response: 0x{x}
                     \\
                 , .{ctrl_response});
 
@@ -201,7 +201,7 @@ pub fn main() !void {
                 , .{feat_code});
                 const feat_response = try card.control(feat_code, null, &buf);
                 std.debug.print(
-                    \\       ┗━ Response: {x:0>2}
+                    \\       ┗━ Response: 0x{x}
                     \\
                 , .{feat_response});
             }
@@ -209,7 +209,7 @@ pub fn main() !void {
             std.debug.print(
                 \\
                 \\Card.attribute({})
-                \\  ┗━ Response: {!x:0>2}
+                \\  ┗━ Response: {!x}
                 \\
             , .{
                 attributes.ids.ATR_STRING,
@@ -218,7 +218,7 @@ pub fn main() !void {
 
             std.debug.print(
                 \\
-                \\Card.attributeSet({}, "Foo Bar"):
+                \\Card.attributeSet({any}, "Foo Bar"):
                 \\  ┗━ Response: {!}
                 \\
             , .{

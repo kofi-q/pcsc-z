@@ -1,6 +1,7 @@
 const base = @import("base");
 const builtin = @import("builtin");
 const std = @import("std");
+const Writer = std.io.Writer;
 
 const Uword = @import("types.zig").Uword;
 
@@ -27,12 +28,7 @@ pub const Protocol = enum(u32) {
     /// The T=15 protocol (might not be supported on all systems).
     T15 = (ProtocolFlags{ .T15 = true }).val(),
 
-    pub fn format(
-        self: Protocol,
-        comptime _: []const u8,
-        _: std.fmt.FormatOptions,
-        writer: std.io.AnyWriter,
-    ) !void {
+    pub fn format(self: Protocol, writer: *Writer) Writer.Error!void {
         try writer.writeAll(switch (self) {
             .RAW => "RAW",
             .ANY => "ANY( T=0, T=1 )",

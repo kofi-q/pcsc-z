@@ -1,6 +1,7 @@
 //! BER-TLV reader/writer. Incomplete - for testing purposes only.
 
 const std = @import("std");
+const Writer = std.io.Writer;
 
 const Tlv = @This();
 
@@ -59,12 +60,7 @@ const Tag = struct {
         }
     };
 
-    pub fn format(
-        self: Tag,
-        comptime _: []const u8,
-        _: std.fmt.FormatOptions,
-        writer: std.io.AnyWriter,
-    ) !void {
+    pub fn format(self: Tag, writer: *Writer) Writer.Error!void {
         try writer.writeAll("0x");
         try writer.print("{x:0>2}", .{@as(u8, @bitCast(self.head))});
         for (self.extra) |b| try writer.print("{x:0>2}", .{b});
@@ -188,7 +184,7 @@ pub fn iterator(buf: []const u8) Iterator {
     return .init(buf);
 }
 
-pub fn write(self: Tlv, writer: std.io.AnyWriter) !void {
+pub fn write(self: Tlv, writer: Writer) Writer.Error!void {
     try writer.writeByte(self.tag);
 
     switch (self.value.len) {
@@ -269,13 +265,8 @@ test write {
     );
 }
 
-pub fn format(
-    self: Tlv,
-    comptime _: []const u8,
-    _: std.fmt.FormatOptions,
-    writer: std.io.AnyWriter,
-) !void {
-    try std.fmt.format(writer, "[TLV] {}: {x:0>2}", .{
+pub fn format(self: Tlv, writer: *Writer) Writer.Error!void {
+    try Writer.print(writer, "[TLV] {}: {x:0>2}", .{
         self.tag,
         self.value,
     });
