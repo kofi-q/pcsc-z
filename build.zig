@@ -34,7 +34,12 @@ pub fn build(b: *std.Build) !void {
     addTests(b, &steps, mod_pcsc);
     addExamples(b, mode, target, mod_base, mod_pcsc);
 
-    steps.check.dependOn(&b.addTest(.{ .root_module = mod_pcsc }).step);
+    steps.check.dependOn(step: {
+        const test_stub = b.addTest(.{ .root_module = mod_pcsc });
+        test_stub.use_llvm = true; // x86 backend may be unstable at the moment.
+
+        break :step &test_stub.step;
+    });
 
     steps.ci.dependOn(steps.fmt);
     steps.ci.dependOn(steps.tests);
@@ -139,6 +144,8 @@ fn addTests(
     mod_pcsc: *std.Build.Module,
 ) void {
     const tests = b.addTest(.{ .root_module = mod_pcsc });
+    tests.use_llvm = true; // x86 backend may be unstable at the moment.
+
     const run = b.addRunArtifact(tests);
     steps.tests.dependOn(&run.step);
 }
@@ -149,10 +156,7 @@ fn linkPcsc(b: *std.Build, module: *std.Build.Module) void {
         .linux => {
             module.addLibraryPath(b.path(b.pathJoin(&.{
                 "_build/linux/lib",
-                b.fmt("{s}-{s}", .{
-                    @tagName(target.cpu.arch),
-                    @tagName(target.abi),
-                }),
+                b.fmt("{t}-{t}", .{ target.cpu.arch, target.abi }),
             })));
 
             module.linkSystemLibrary("pcsclite", .{});
@@ -168,7 +172,9 @@ fn linkPcsc(b: *std.Build, module: *std.Build.Module) void {
 
         .windows => module.linkSystemLibrary("winscard", .{}),
 
-        else => @panic(b.fmt("[pcsc-z] Unsupported target: {}\n", .{target})),
+        else => @panic(b.fmt("[pcsc-z] Unsupported target: {s}\n", .{
+            target.zigTriple(b.allocator) catch @panic("OOM"),
+        })),
     }
 }
 

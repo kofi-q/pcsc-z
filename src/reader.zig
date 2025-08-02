@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Writer = std.io.Writer;
 
 const base = @import("base");
 
@@ -128,27 +129,22 @@ pub fn ReaderT(
             return std.mem.span(self.name_ptr);
         }
 
-        pub fn format(
-            self: Self,
-            comptime _: []const u8,
-            _: std.fmt.FormatOptions,
-            writer: std.io.AnyWriter,
-        ) !void {
+        pub fn format(self: Self, writer: *Writer) Writer.Error!void {
             const name_str = self.name();
             if (name_str.len > 0) {
-                try std.fmt.format(writer, "{s}: ", .{name_str});
+                try Writer.print(writer, "{s}: ", .{name_str});
             }
 
             var cur_status = self.status.flags;
             cur_status.CHANGED = false;
-            try std.fmt.format(writer, "{s}", .{cur_status});
+            try Writer.print(writer, "{f}", .{cur_status});
 
             if (self.status_new.flags.CHANGED) {
                 var next_status = self.status_new.flags;
                 next_status.CHANGED = false;
 
                 if (cur_status != next_status) {
-                    try std.fmt.format(writer, " -> {s}", .{next_status});
+                    try Writer.print(writer, " -> {f}", .{next_status});
                 }
             }
         }
