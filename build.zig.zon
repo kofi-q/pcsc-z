@@ -2,7 +2,7 @@
     .name = .pcsc,
     .version = "0.1.0",
     .fingerprint = 0xd043102e7ef605b0,
-    .minimum_zig_version = "0.15.0-dev.1283+1fcaf90dd",
+    .minimum_zig_version = "0.15.1",
     .dependencies = .{
         .base = .{
             .hash = "base-0.1.0-rhH4piolBQAXTv0qQKQkD8VV_yEkKwrdBkIjiOURWe7o",
