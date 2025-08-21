@@ -34,12 +34,7 @@ pub fn build(b: *std.Build) !void {
     addTests(b, &steps, mod_pcsc);
     addExamples(b, mode, target, mod_base, mod_pcsc);
 
-    steps.check.dependOn(step: {
-        const test_stub = b.addTest(.{ .root_module = mod_pcsc });
-        test_stub.use_llvm = true; // x86 backend may be unstable at the moment.
-
-        break :step &test_stub.step;
-    });
+    steps.check.dependOn(&b.addTest(.{ .root_module = mod_pcsc }).step);
 
     steps.ci.dependOn(steps.fmt);
     steps.ci.dependOn(steps.tests);
@@ -143,10 +138,7 @@ fn addTests(
     steps: *const Steps,
     mod_pcsc: *std.Build.Module,
 ) void {
-    const tests = b.addTest(.{ .root_module = mod_pcsc });
-    tests.use_llvm = true; // x86 backend may be unstable at the moment.
-
-    const run = b.addRunArtifact(tests);
+    const run = b.addRunArtifact(b.addTest(.{ .root_module = mod_pcsc }));
     steps.tests.dependOn(&run.step);
 }
 
