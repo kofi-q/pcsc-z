@@ -1,7 +1,7 @@
 const base = @import("base");
 const builtin = @import("builtin");
 const std = @import("std");
-const Writer = std.io.Writer;
+const Writer = std.Io.Writer;
 
 const Uword = @import("types.zig").Uword;
 
