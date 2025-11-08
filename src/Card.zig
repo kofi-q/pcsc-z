@@ -2,7 +2,7 @@
 
 const std = @import("std");
 const builtin = @import("builtin");
-const Writer = std.io.Writer;
+const Writer = std.Io.Writer;
 
 const base = @import("base");
 
