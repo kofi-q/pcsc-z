@@ -32,6 +32,14 @@ Required packages:
 ```sh
 sudo apt install libpcsclite1 pcscd
 ```
+Optional packages:
+
+- `libpcsclite-dev` (Required when using the `link_system_pcsclite` build option for native targets).
+
+```sh
+sudo apt install libpcsclite-dev
+```
+
 To run the server daemon:
 ```sh
 sudo systemctl start pcscd
@@ -39,7 +47,7 @@ sudo systemctl start pcscd
 
 ### MacOS/Windows
 
-**`N/A` ::** MacOS and Windows come pre-installed with smart card support. No additional installation needed.
+**`N/A`::** MacOS and Windows come pre-installed with smart card support. No additional installation needed.
 
 <br />
 
@@ -49,16 +57,59 @@ sudo systemctl start pcscd
 zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 ```
 
+## Build Configuration
+
+```zig
+//! build.zig
+
+const std = @import("std");
+
+pub fn build(b: *std.Build) !void {
+    const target = b.standardTargetOptions(.{});
+    const mode = b.standardOptimizeOption(.{});
+
+    const pcsc_dep = b.dependency("pcsc", .{
+        .optimize = mode,
+        .target = target,
+
+        // Optional. May be needed when building for native targets, to avoid
+        // version mismatch issues.
+        // See https://github.com/kofi-q/pcsc-z/issues/8.
+        // .link_system_pcsclite = true,
+    });
+
+    const pcsc_mod = pcsc_dep.module("pcsc");
+
+    const exe = b.addExecutable(.{
+        .name = "pcsc-demo",
+        .root_module = b.createModule(.{
+            .imports = &.{
+                .{ .name = "pcsc", .module = pcsc_mod },
+            },
+            .optimize = mode,
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+        }),
+    });
+
+    const demo_run = b.addRunArtifact(exe);
+    const demo_step = b.step("demo", "Run PCSC demo");
+    demo_step.dependOn(&demo_run.step);
+}
+```
+
 ## Usage
 
 ```zig
+//! src/main.zig
+
 const std = @import("std");
 const pcsc = @import("pcsc");
 
 pub fn main() !void {
     const client = try pcsc.Client.init(.SYSTEM);
     defer client.deinit() catch |err| std.debug.print(
-        "Unable to release client: {}",
+        "Unable to release client: {t}",
         .{err},
     );
 
@@ -103,32 +154,33 @@ pub fn main() !void {
     // Connect to an inserted card:
     const card = try client.connect(readers[0].name_ptr, .SHARED, .ANY);
     defer card.disconnect(.RESET) catch |err| std.debug.print(
-        "Unable to disconnect card: {}\n",
+        "Unable to disconnect card: {t}\n",
         .{err},
     );
 
-    std.debug.print("Card connected with protocol {}\n", .{card.protocol});
+    std.debug.print("Card connected with protocol {f}\n", .{card.protocol});
 
     const command = [_]u8{ 0xca, 0xfe, 0xf0, 0x0d };
 
-    std.debug.print("Transmitting APDU: {x:0>2}\n", .{command});
+    std.debug.print("Transmitting APDU: {x}\n", .{command});
 
     // Transmit/receive data to/from a card:
     var buf_response: [pcsc.max_buffer_len]u8 = undefined;
     const response = try card.transmit(&command, &buf_response);
 
-    std.debug.print("Received response: {x:0>2}\n", .{response});
+    std.debug.print("Received response: {x}\n", .{response});
 }
+
 ```
 ```console
-$ zig build example:transmit
+$ zig build demo
 Connect a reader to continue...
 Reader detected: Gemalto USB SmartCard Reader
 Insert a card to continue...
 Connecting to card...
 Card connected with protocol T=1
-Transmitting APDU: { ca, fe, f0, 0d }
-Received response: { 68, 81 }
+Transmitting APDU: cafef00d
+Received response: 6881
 ```
 
 > [!TIP]
@@ -151,13 +203,13 @@ Other relevant development libraries (e.g. `libpcsclite-dev` on Debian-based dis
 
 #### MacOS
 
-**`N/A` ::** Required MacOS Framework `.tbd`s are included here. No additional installation needed.
+**`N/A`::** Required MacOS Framework `.tbd`s are included here. No additional installation needed.
 
 **NOTE:** To update the `.tbd`s, however, an XCode installation is needed.
 
 #### Windows
 
-**`N/A` ::** Required DLLs are shipped with the Zig compiler. No additional installation needed.
+**`N/A`::** Required DLLs are shipped with the Zig compiler. No additional installation needed.
 
 ## License
 

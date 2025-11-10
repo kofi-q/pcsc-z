@@ -4,6 +4,19 @@ const std = @import("std");
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const mode = b.standardOptimizeOption(.{});
+    const link_system_pcsclite = b.option(
+        bool,
+        "link_system_pcsclite",
+        \\Link against the system version of libpcsclite.
+        \\      NOTE: Requires a pcsclite dev package (e.g. libpcsclite-dev on
+        \\      Debian-based distros) to be installed on Linux targets.
+        \\      For native-target builds, this provides a workaround to prevent
+        \\      Zig from producing a binary with a runpath hardcoded to this
+        \\      packages's version of libpscslite, and potentially causing a
+        \\      version/protocol mismatch.
+        \\      See: https://github.com/kofi-q/pcsc-z/issues/8).
+        ,
+    );
 
     const steps = Steps{
         .check = b.step("check", "Get compile-time diagnostics"),
@@ -25,7 +38,7 @@ pub fn build(b: *std.Build) !void {
         .root_source_file = b.path("src/root.zig"),
         .target = target,
     });
-    linkPcsc(b, mod_pcsc);
+    linkPcsc(b, mod_pcsc, link_system_pcsclite orelse false);
 
     addDepsUpdate(b, &steps);
     addDocs(b, &steps, mod_pcsc);
@@ -142,11 +155,15 @@ fn addTests(
     steps.tests.dependOn(&run.step);
 }
 
-fn linkPcsc(b: *std.Build, module: *std.Build.Module) void {
+fn linkPcsc(
+    b: *std.Build,
+    module: *std.Build.Module,
+    use_system_version: bool,
+) void {
     const target = module.resolved_target.?.result;
     switch (target.os.tag) {
         .linux => {
-            module.addLibraryPath(b.path(b.pathJoin(&.{
+            if (!use_system_version) module.addLibraryPath(b.path(b.pathJoin(&.{
                 "_build/linux/lib",
                 b.fmt("{t}-{t}", .{ target.cpu.arch, target.abi }),
             })));
@@ -155,7 +172,7 @@ fn linkPcsc(b: *std.Build, module: *std.Build.Module) void {
         },
 
         .macos => {
-            module.addSystemFrameworkPath(
+            if (!use_system_version) module.addSystemFrameworkPath(
                 b.path("_build/macos/xcode_frameworks/Frameworks"),
             );
 
