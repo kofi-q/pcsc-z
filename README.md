@@ -57,6 +57,16 @@ sudo systemctl start pcscd
 zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 ```
 
+> [!NOTE]
+>
+> The `main` branch is roughly tracking zig@latest. The current minimum supported version is specified in [build.zig.zon](./build.zig.zon), though earlier `0.16.0-dev.*` versions may also be compatible.
+>
+> To use a 0.15.1-compatible version, you can fetch the following commit instead:
+
+```sh
+zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#72ca6c7a07f4ec7d42dee3502b7ccdb5993b3858"
+```
+
 ## Build Configuration
 
 ```zig
