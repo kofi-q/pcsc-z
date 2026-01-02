@@ -169,7 +169,12 @@ pub fn isValid(self: Client) !bool {
 ///    var client = try pcsc.Client.init(.SYSTEM);
 ///    defer client.deinit() catch unreachable;
 ///
-///    var names = try client.groupNames();
+///    const allo = std.heap.smp_allocator;
+///    const buf_len = try client.groupNamesLen();
+///    const buf = try allo.alloc(u8, buf_len):
+///    defer allo.free(buf);
+///
+///    var names = try client.groupNames(buf);
 ///    while (names.next()) |name| {
 ///        std.debug.print("Reader group: {s}\n", name);
 ///    }
