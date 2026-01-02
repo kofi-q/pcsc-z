@@ -2,7 +2,7 @@
 
 const std = @import("std");
 const builtin = @import("builtin");
-const Writer = std.io.Writer;
+const Writer = std.Io.Writer;
 
 const base = @import("base");
 
@@ -146,25 +146,24 @@ pub const Status = packed struct(u32) {
     /// bitflags used in the PCSCLite implementations.
     ///
     /// https://pcsclite.apdu.fr/api/group__API.html#differences
-    const Win = @Type(.{ .@"enum" = .{
-        .fields = blk: {
-            const flags = @typeInfo(Status).@"struct".fields;
-            var fields: [flags.len]std.builtin.Type.EnumField = undefined;
+    const Win = as_enum: {
+        const flags = @typeInfo(Status).@"struct".fields;
 
-            var len = 0;
-            for (flags) |flag| {
-                if (flag.type != bool) continue;
+        var names: [flags.len][]const u8 = undefined;
+        var values: [flags.len]Uword = undefined;
 
-                fields[len] = .{ .name = flag.name, .value = len };
-                len += 1;
-            }
+        var len = 0;
+        for (flags) |flag| {
+            if (flag.type != bool) continue;
 
-            break :blk fields[0..len];
-        },
-        .tag_type = Uword,
-        .decls = &.{},
-        .is_exhaustive = true,
-    } });
+            names[len] = flag.name;
+            values[len] = len;
+
+            len += 1;
+        }
+
+        break :as_enum @Enum(Uword, .exhaustive, names[0..len], values[0..len]);
+    };
 
     fn fromWin(value: Win) Status {
         var status = Status{};

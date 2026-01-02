@@ -2,11 +2,11 @@
     .name = .pcsc,
     .version = "0.1.0",
     .fingerprint = 0xd043102e7ef605b0,
-    .minimum_zig_version = "0.15.1",
+    .minimum_zig_version = "0.16.0-dev.1484+d0ba6642b",
     .dependencies = .{
         .base = .{
-            .hash = "base-0.1.0-rhH4pnYnBQAwcgeqIX63Yqx2TsUr5ubNf8jYE5BhE4Dn",
-            .url = "git+https://github.com/kofi-q/base-z.git#fd20656c029dff054bb19d7da65291624ff23865",
+            .hash = "base-0.1.0-rhH4pjslBQAAN1NAax_600CCh2c9LiQIso7d0PcZL9nZ",
+            .url = "git+https://github.com/kofi-q/base-z.git#fc9b285cd64bb01d64b7bc6fe3e69d1a1a80e8ce",
         },
     },
     .paths = .{

@@ -1,7 +1,7 @@
 //! BER-TLV reader/writer. Incomplete - for testing purposes only.
 
 const std = @import("std");
-const Writer = std.io.Writer;
+const Writer = std.Io.Writer;
 
 const Tlv = @This();
 
@@ -25,7 +25,8 @@ const Tag = struct {
         /// Application class (specific to an application)
         application = 0b01,
 
-        /// Context-specific class (meaning depends on the context of the constructed data object it's part of)
+        /// Context-specific class (meaning depends on the context of the
+        /// constructed data object it's part of)
         custom = 0b10,
 
         /// Private class (for private use)
@@ -82,7 +83,7 @@ const Len = packed struct(u8) {
 };
 
 pub const Iterator = struct {
-    reader: std.io.FixedBufferStream([]const u8),
+    reader: std.Io.Reader,
 
     pub const Err = error{
         Eof,
@@ -92,14 +93,12 @@ pub const Iterator = struct {
     };
 
     pub fn init(buf: []const u8) Iterator {
-        return .{ .reader = std.io.fixedBufferStream(buf) };
+        return .{ .reader = std.Io.Reader.fixed(buf) };
     }
 
-    pub fn next(self: *Iterator) Err!Tlv {
-        const reader = self.reader.reader().any();
-
-        const tag = try self.readTag();
-        const len_or_marker: Len = @bitCast(reader.readByte() catch {
+    pub fn next(it: *Iterator) Err!Tlv {
+        const tag = try it.readTag();
+        const len_or_marker: Len = @bitCast(it.reader.takeByte() catch {
             return Err.Malformed;
         });
 
@@ -113,22 +112,22 @@ pub const Iterator = struct {
                     // TLVs.
                     const end = std.mem.indexOfPos(
                         u8,
-                        self.reader.buffer,
-                        self.reader.pos,
+                        it.reader.buffer,
+                        it.reader.seek,
                         "\x00\x00",
                     ) orelse return Err.Malformed;
 
                     // Skip the value-end marker found above.
-                    defer self.reader.seekBy(2) catch unreachable;
+                    defer it.reader.toss(2);
 
-                    const len: u16 = @intCast(end - self.reader.pos);
+                    const len: u16 = @intCast(end - it.reader.seek);
 
                     return .{
                         .tag = tag,
-                        .value = self.readValue(len) catch return Err.Malformed,
+                        .value = it.reader.take(len) catch return Err.Malformed,
                     };
                 },
-                inline 1...2 => |byte_count| try self.readLen(
+                inline 1...2 => |byte_count| try it.readLen(
                     std.meta.Int(.unsigned, byte_count * 8),
                 ),
                 else => return Err.UnsupportedLength,
@@ -137,22 +136,22 @@ pub const Iterator = struct {
 
         return .{
             .tag = tag,
-            .value = self.readValue(len) catch return Err.Malformed,
+            .value = it.reader.take(len) catch return Err.Malformed,
         };
     }
 
-    fn readTag(self: *Iterator) Err!Tag {
-        const reader = self.reader.reader().any();
-
-        const head: Tag.Head = @bitCast(reader.readByte() catch return Err.Eof);
+    fn readTag(it: *Iterator) Err!Tag {
+        const head: Tag.Head = @bitCast(
+            it.reader.takeByte() catch return Err.Eof,
+        );
         if (!head.type.isLongForm()) return .{
             .head = head,
             .extra = &.{},
         };
 
-        const start = self.reader.pos;
+        const start = it.reader.seek;
         while (true) {
-            const tag_type: Tag.TypeLong = @bitCast(reader.readByte() catch {
+            const tag_type: Tag.TypeLong = @bitCast(it.reader.takeByte() catch {
                 return Err.Malformed;
             });
             if (!tag_type.has_more) break;
@@ -160,23 +159,14 @@ pub const Iterator = struct {
 
         return .{
             .head = head,
-            .extra = self.reader.buffer[start..self.reader.pos],
+            .extra = it.reader.buffer[start..it.reader.seek],
         };
     }
 
-    fn readLen(self: *Iterator, comptime IntType: type) Err!u16 {
-        return @intCast(self.reader.reader().readInt(IntType, .big) catch {
+    fn readLen(it: *Iterator, comptime IntType: type) Err!u16 {
+        return @intCast(it.reader.takeInt(IntType, .big) catch {
             return Err.InvalidLength;
         });
-    }
-
-    fn readValue(self: *Iterator, len: u16) error{Malformed}![]const u8 {
-        const start = self.reader.pos;
-
-        self.reader.seekBy(len) catch return Err.Malformed;
-        if (len > self.reader.pos - start) return Err.Malformed;
-
-        return self.reader.buffer[start..][0..len];
     }
 };
 
@@ -184,17 +174,17 @@ pub fn iterator(buf: []const u8) Iterator {
     return .init(buf);
 }
 
-pub fn write(self: Tlv, writer: Writer) Writer.Error!void {
-    try writer.writeByte(self.tag);
+pub fn write(tlv: Tlv, writer: Writer) Writer.Error!void {
+    try writer.writeByte(tlv.tag);
 
-    switch (self.value.len) {
+    switch (tlv.value.len) {
         0...0x7f => |len| {
             try writer.writeInt(u8, @intCast(len), .big);
         },
         0x80 => {
             // Special case: indeterminate length.
             try writer.writeInt(u8, 0x80, .big);
-            try writer.writeAll(self.value);
+            try writer.writeAll(tlv.value);
             try writer.writeInt(u16, 0);
             return;
         },
@@ -209,14 +199,14 @@ pub fn write(self: Tlv, writer: Writer) Writer.Error!void {
         else => return error.UnsupportedLength,
     }
 
-    try writer.writeAll(self.value);
+    try writer.writeAll(tlv.value);
 }
 
 test write {
     const buf = try std.testing.allocator.alloc(u8, 0x01_00_00);
     defer std.testing.allocator.free(buf);
 
-    var stream = std.io.fixedBufferStream(buf);
+    var stream = std.Io.fixedBufferStream(buf);
     const writer = stream.writer().any();
 
     try (Tlv{ .tag = 0x55, .value = &.{} }).write(writer);
@@ -265,9 +255,9 @@ test write {
     );
 }
 
-pub fn format(self: Tlv, writer: *Writer) Writer.Error!void {
+pub fn format(tlv: Tlv, writer: *Writer) Writer.Error!void {
     try Writer.print(writer, "[TLV] {}: {x:0>2}", .{
-        self.tag,
-        self.value,
+        tlv.tag,
+        tlv.value,
     });
 }
