@@ -30,6 +30,7 @@
     "CCID",
     "deinit",
     "Iword",
+    "libpcsclite",
     "npmignore",
     "orelse",
     "pcsc",

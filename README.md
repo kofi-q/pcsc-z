@@ -26,18 +26,11 @@ doas rc-service pcscd start
 
 Required packages:
 
-- `libpcsclite1`
+- `libpcsclite-dev`
 - `pcscd`
 
 ```sh
-sudo apt install libpcsclite1 pcscd
-```
-Optional packages:
-
-- `libpcsclite-dev` (Required when using the `link_system_pcsclite` build option for native targets).
-
-```sh
-sudo apt install libpcsclite-dev
+sudo apt install libpcsclite-dev pcscd
 ```
 
 To run the server daemon:
@@ -61,7 +54,7 @@ zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 >
 > The `main` branch is roughly tracking zig@latest. The current minimum supported version is specified in [build.zig.zon](./build.zig.zon), though earlier `0.16.0-dev.*` versions may also be compatible.
 >
-> To use a 0.15.1-compatible version, you can fetch the following commit instead:
+> To use a 0.15.*-compatible version, you can fetch the following commit instead:
 
 ```sh
 zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#72ca6c7a07f4ec7d42dee3502b7ccdb5993b3858"
@@ -82,10 +75,9 @@ pub fn build(b: *std.Build) !void {
         .optimize = mode,
         .target = target,
 
-        // Optional. May be needed when building for native targets, to avoid
-        // version mismatch issues.
-        // See https://github.com/kofi-q/pcsc-z/issues/8.
-        // .link_system_pcsclite = true,
+        // Optional. May be useful when cross-compiling for non-native targets.
+        // See https://github.com/kofi-q/pcsc-z/blob/main/build.zig
+        // .link_vendored_sysroots = true,
     });
 
     const pcsc_mod = pcsc_dep.module("pcsc");
@@ -203,17 +195,15 @@ Received response: 6881
 
 #### Zig
 
-v0.15.1 required - see [`.zigversion`](.zigversion) for latest compatible version.
+v0.16.0-dev required - see [`.zigversion`](.zigversion) for minimum compatible version.
 
 #### Linux
 
 See [Linux](#linux) section above for a list of runtime prerequisites.
 
-Other relevant development libraries (e.g. `libpcsclite-dev` on Debian-based distros) are included in this repo to ease cross-compilation. No additional installation needed.
-
 #### MacOS
 
-**`N/A`::** Required MacOS Framework `.tbd`s are included here. No additional installation needed.
+**`N/A`::** No additional installation needed.
 
 **NOTE:** To update the `.tbd`s, however, an XCode installation is needed.
 
