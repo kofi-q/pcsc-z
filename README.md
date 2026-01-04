@@ -57,7 +57,7 @@ zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
 > To use a 0.15.*-compatible version, you can fetch the following commit instead:
 
 ```sh
-zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#72ca6c7a07f4ec7d42dee3502b7ccdb5993b3858"
+zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#zig-0.15"
 ```
 
 ## Build Configuration
