@@ -20,7 +20,6 @@ pub fn build(b: *std.Build) !void {
         \\cross-compiling to non-native Linux/MacOS targets.
         ,
     );
-    std.log.info("link sysroots: {?}", .{link_vendored_sysroots});
 
     const steps = Steps{
         .check = b.step("check", "Get compile-time diagnostics"),
