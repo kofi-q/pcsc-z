@@ -33,7 +33,7 @@ jobs:
 
       - name: Build & Test
         run: |
-          zig build ci --summary all
+          zig build ci -Dlink_vendored_sysroots --summary all
 
   publish-docs:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build Docs
         run: |
-          zig build docs --summary all
+          zig build docs -Dlink_vendored_sysroots --summary all
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5

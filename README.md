@@ -26,18 +26,11 @@ doas rc-service pcscd start
 
 Required packages:
 
-- `libpcsclite1`
+- `libpcsclite-dev`
 - `pcscd`
 
 ```sh
-sudo apt install libpcsclite1 pcscd
-```
-Optional packages:
-
-- `libpcsclite-dev` (Required when using the `link_system_pcsclite` build option for native targets).
-
-```sh
-sudo apt install libpcsclite-dev
+sudo apt install libpcsclite-dev pcscd
 ```
 
 To run the server daemon:
@@ -54,7 +47,7 @@ sudo systemctl start pcscd
 ## Installation
 
 ```sh
-zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git"
+zig fetch --save=pcsc "git+https://github.com/kofi-q/pcsc-z.git#zig-0.15"
 ```
 
 ## Build Configuration
@@ -72,10 +65,9 @@ pub fn build(b: *std.Build) !void {
         .optimize = mode,
         .target = target,
 
-        // Optional. May be needed when building for native targets, to avoid
-        // version mismatch issues.
-        // See https://github.com/kofi-q/pcsc-z/issues/8.
-        // .link_system_pcsclite = true,
+        // Optional. May be useful when cross-compiling for non-native targets.
+        // See https://github.com/kofi-q/pcsc-z/blob/main/build.zig
+        // .link_vendored_sysroots = true,
     });
 
     const pcsc_mod = pcsc_dep.module("pcsc");
@@ -193,17 +185,15 @@ Received response: 6881
 
 #### Zig
 
-v0.15.1 required - see [`.zigversion`](.zigversion) for latest compatible version.
+v0.15.* required
 
 #### Linux
 
 See [Linux](#linux) section above for a list of runtime prerequisites.
 
-Other relevant development libraries (e.g. `libpcsclite-dev` on Debian-based distros) are included in this repo to ease cross-compilation. No additional installation needed.
-
 #### MacOS
 
-**`N/A`::** Required MacOS Framework `.tbd`s are included here. No additional installation needed.
+**`N/A`::** No additional installation needed.
 
 **NOTE:** To update the `.tbd`s, however, an XCode installation is needed.
 
