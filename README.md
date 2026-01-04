@@ -116,7 +116,7 @@ pub fn main() !void {
     );
 
     // Detect connected card readers:
-    var readers = [_]pcsc.Reader{.empty};
+    var readers = [_]pcsc.Reader{.pnp_query};
     while (true) {
         var reader_names = try client.readerNames();
         if (reader_names.next()) |name| {
@@ -127,7 +127,7 @@ pub fn main() !void {
 
         std.debug.print("Connect a reader to continue...\n", .{});
 
-        try client.waitForUpdates(&[_]pcsc.Reader{.pnp_query}, .infinite);
+        try client.waitForUpdates(&readers, .infinite);
     }
 
     // Detect inserted cards:
