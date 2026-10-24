@@ -53,7 +53,7 @@ pub const Protocol = enum(u32) {
         val: Protocol,
 
         /// Potential padding.
-        _: std.meta.Int(
+        _: @Int(
             .unsigned,
             @bitSizeOf(Uword) -| @bitSizeOf(Protocol),
         ) = 0,
@@ -110,7 +110,7 @@ const ProtocolFlags = packed struct(u32) {
     pub const val = Impl.val;
 
     pub fn fromEnum(protocol: Protocol) ProtocolFlags {
-        return @bitCast(@intFromEnum(protocol));
+        return @bitCast(@backingInt(protocol));
     }
 
     /// `true` iff the system-specific `RAW` flag is set.
@@ -143,7 +143,7 @@ const ProtocolFlags = packed struct(u32) {
         ) = 0,
 
         pub fn fromEnum(protocol: Protocol) ProtocolFlags.Sys {
-            return .{ .flags = @bitCast(@intFromEnum(protocol)) };
+            return .{ .flags = @bitCast(@backingInt(protocol)) };
         }
     };
 };

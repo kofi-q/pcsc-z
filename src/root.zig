@@ -40,6 +40,19 @@ pub inline fn controlCode(function_code: u32) u32 {
 }
 
 test {
+    refAllDeclsRecursive(@This());
+}
+fn refAllDeclsRecursive(comptime T: type) void {
     const std = @import("std");
-    std.testing.refAllDeclsRecursive(@This());
+
+    if (!builtin.is_test) return;
+    inline for (comptime std.meta.declarations(T)) |decl| {
+        if (@TypeOf(@field(T, decl)) == type) {
+            switch (@typeInfo(@field(T, decl))) {
+                .@"struct", .@"enum", .@"union", .@"opaque" => refAllDeclsRecursive(@field(T, decl)),
+                else => {},
+            }
+        }
+        _ = &@field(T, decl);
+    }
 }

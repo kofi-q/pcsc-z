@@ -20,7 +20,7 @@ pub const Id = packed struct(u32) {
         id: Id,
 
         /// Potential padding.
-        _: std.meta.Int(.unsigned, @bitSizeOf(Uword) -| @bitSizeOf(Id)) = 0,
+        _: @Int(.unsigned, @bitSizeOf(Uword) -| @bitSizeOf(Id)) = 0,
     };
 };
 

@@ -212,7 +212,7 @@ const StatusFlags = packed struct(u32) {
         flags: StatusFlags = .{},
 
         /// Potential padding.
-        _: std.meta.Int(
+        _: @Int(
             .unsigned,
             @bitSizeOf(Uword) -| @bitSizeOf(StatusFlags),
         ) = 0,

@@ -128,7 +128,7 @@ pub const Iterator = struct {
                     };
                 },
                 inline 1...2 => |byte_count| try it.readLen(
-                    std.meta.Int(.unsigned, byte_count * 8),
+                    @Int(.unsigned, byte_count * 8),
                 ),
                 else => return Err.UnsupportedLength,
             };

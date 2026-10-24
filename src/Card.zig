@@ -24,7 +24,7 @@ handle: Handle,
 /// Currently active protocol.
 protocol: Protocol,
 
-pub const Handle = packed struct { ref: HandleType };
+pub const Handle = extern struct { ref: HandleType };
 
 /// Card disposition action to perform when disconnecting or reconnecting.
 pub const Disposition = enum(u8) {
@@ -48,7 +48,7 @@ pub const Disposition = enum(u8) {
         disposition: Disposition,
 
         /// Potential padding.
-        _: std.meta.Int(
+        _: @Int(
             .unsigned,
             @bitSizeOf(Uword) - @bitSizeOf(Disposition),
         ) = 0,
@@ -87,7 +87,7 @@ pub const Mode = enum(u8) {
         mode: Mode,
 
         /// Potential padding.
-        _: std.meta.Int(.unsigned, @bitSizeOf(Uword) - @bitSizeOf(Mode)) = 0,
+        _: @Int(.unsigned, @bitSizeOf(Uword) - @bitSizeOf(Mode)) = 0,
     };
 };
 
@@ -137,7 +137,7 @@ pub const Status = packed struct(u32) {
         flags: Status,
 
         /// Potential padding.
-        _: std.meta.Int(.unsigned, @bitSizeOf(Uword) -| @bitSizeOf(Status)) = 0,
+        _: @Int(.unsigned, @bitSizeOf(Uword) -| @bitSizeOf(Status)) = 0,
     };
 
     /// Windows-specific wrapper type for `Card.Status`.
@@ -147,17 +147,20 @@ pub const Status = packed struct(u32) {
     ///
     /// https://pcsclite.apdu.fr/api/group__API.html#differences
     const Win = as_enum: {
-        const flags = @typeInfo(Status).@"struct".fields;
+        const flags_names = @typeInfo(Status).@"struct".field_names;
+        const flag_types = @typeInfo(Status).@"struct".field_types;
 
-        var names: [flags.len][]const u8 = undefined;
-        var values: [flags.len]Uword = undefined;
+        std.debug.assert(flag_types.len == flags_names.len);
+
+        var names: [flags_names.len][]const u8 = undefined;
+        var values: [flag_types.len]Uword = undefined;
 
         var len = 0;
-        for (flags) |flag| {
-            if (flag.type != bool) continue;
+        for (0..flags_names.len) |i| {
+            if (flag_types[i] != bool) continue;
 
-            names[len] = flag.name;
-            values[len] = len;
+            names[len] = flags_names[i];
+            values[len] = @intCast(len);
 
             len += 1;
         }

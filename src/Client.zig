@@ -76,7 +76,7 @@ const Client = @This();
 /// Server-assigned handle for the client connection context.
 handle: Handle,
 
-const Handle = packed struct { ref: HandleType };
+const Handle = extern struct { ref: HandleType };
 
 /// Scope for a PCSC connection.
 pub const Scope = enum(u8) {
@@ -94,8 +94,8 @@ pub const Scope = enum(u8) {
     const Sys = packed struct(Uword) {
         scope: Scope,
 
-        /// Potential padding.
-        _: std.meta.Int(.unsigned, @bitSizeOf(Uword) - @bitSizeOf(Scope)) = 0,
+        // Potential padding.
+        _: @Int(.unsigned, @bitSizeOf(Uword) - @bitSizeOf(Scope)) = 0,
     };
 };
 

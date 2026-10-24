@@ -195,7 +195,7 @@ Received response: 6881
 
 #### Zig
 
-v0.16.0-dev required - see [`.zigversion`](.zigversion) for minimum compatible version.
+v0.17.0 required - see [`.zigversion`](.zigversion) for minimum compatible version.
 
 #### Linux
 
